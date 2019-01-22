@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type HTTPGetter interface {
+type HTTPElastic interface {
 	CreateIndex(index string) (*elastic.IndicesCreateResult, error)
 	ImportData(data string, index string) (*elastic.IndexResponse, error)
 	GetData(field string, keyword string, index string, sort string, limit int) (*elastic.SearchResult, error)
@@ -15,21 +15,21 @@ type HTTPGetter interface {
 
 // Getter are for implementing HTTPGetter interface
 // and reserved for the future work
-type Getter struct {
+type Elastic struct {
 	client *elastic.Client
 }
 
 // New creates a new Getter
-func New(url string, port string) (*Getter, error) {
+func New(url string, port string) (*Elastic, error) {
 	c, err := elastic.NewClient(elastic.SetURL(url + ":" + port))
 	if err != nil {
 		return nil, err
 	}
-	return &Getter{client: c}, nil
+	return &Elastic{client: c}, nil
 }
 
 // Get fetches url with a timeout
-func (g *Getter) CreateIndex(index string) (*elastic.IndicesCreateResult, error) {
+func (g *Elastic) CreateIndex(index string) (*elastic.IndicesCreateResult, error) {
 	ctx := context.Background()
 	// Use the IndexExists service to check if a specified index exists.
 	exists, err := g.client.IndexExists(index).Do(ctx)
@@ -51,7 +51,7 @@ func (g *Getter) CreateIndex(index string) (*elastic.IndicesCreateResult, error)
 }
 
 // Get fetches url with a timeout
-func (g *Getter) ImportData(data string, index string) (*elastic.IndexResponse, error) {
+func (g *Elastic) ImportData(data string, index string) (*elastic.IndexResponse, error) {
 	ctx := context.Background()
 	put2, err := g.client.Index().
 		Index(index).
@@ -65,7 +65,7 @@ func (g *Getter) ImportData(data string, index string) (*elastic.IndexResponse, 
 }
 
 // Get fetches url with a timeout
-func (g *Getter) GetData(field string, keyword string, index string, sort string, limit int) (*elastic.SearchResult, error) {
+func (g *Elastic) GetData(field string, keyword string, index string, sort string, limit int) (*elastic.SearchResult, error) {
 	ctx := context.Background()
 	// Search with a term query
 	termQuery := elastic.NewTermQuery(field, keyword)

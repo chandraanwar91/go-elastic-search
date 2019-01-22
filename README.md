@@ -9,7 +9,7 @@ This repository contains a package elastic search.
 git clone https://github.com/chandraanwar91/go-elastic-search
 
 # GET WITH GO GET
-go get github.com/bxcodec/go-clean-arch
+go get github.com/chandraanwar91/go-elastic-search
 
 # Install Dependencies
 dep ensure

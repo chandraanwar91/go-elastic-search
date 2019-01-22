@@ -10,10 +10,3 @@ git clone https://github.com/chandraanwar91/go-elastic-search
 
 # GET WITH GO GET
 go get github.com/chandraanwar91/go-elastic-search
-
-# Install Dependencies
-dep ensure
-
-# Run Project
-go run main.go
-```

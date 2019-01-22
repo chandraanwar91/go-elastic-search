@@ -13,13 +13,11 @@ type HTTPElastic interface {
 	GetData(field string, keyword string, index string, sort string, limit int) (*elastic.SearchResult, error)
 }
 
-// Getter are for implementing HTTPGetter interface
-// and reserved for the future work
 type Elastic struct {
 	client *elastic.Client
 }
 
-// New creates a new Getter
+// New creates a client
 func New(url string, port string) (*Elastic, error) {
 	c, err := elastic.NewClient(elastic.SetURL(url + ":" + port))
 	if err != nil {
@@ -50,7 +48,7 @@ func (g *Elastic) CreateIndex(index string) (*elastic.IndicesCreateResult, error
 	return nil, errors.New("Index " + index + " already exist")
 }
 
-// Get fetches url with a timeout
+// Import Data to elastic
 func (g *Elastic) ImportData(data string, index string) (*elastic.IndexResponse, error) {
 	ctx := context.Background()
 	put2, err := g.client.Index().
@@ -64,7 +62,7 @@ func (g *Elastic) ImportData(data string, index string) (*elastic.IndexResponse,
 	return put2, nil
 }
 
-// Get fetches url with a timeout
+// Get data elastic
 func (g *Elastic) GetData(field string, keyword string, index string, sort string, limit int) (*elastic.SearchResult, error) {
 	ctx := context.Background()
 	// Search with a term query

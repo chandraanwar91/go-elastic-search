@@ -99,6 +99,23 @@ func (g *Elastic) GetDocumentsByIdsInAndSize(index string, indexType string, ids
 }
 
 // Get documents by query string
+/*
+	{
+		"match": [{
+			"id": "",
+			...
+		}],
+		"wildcard": [{
+			"name": "",
+			...
+		}],
+		"sort": [{
+			"name.raw": "asc",
+			...
+		}],
+		"size": 10
+	}
+*/
 func (g *Elastic) GetDocumentsByMapString(index string, indexType string, body map[string]interface{}) (searchResult *elastic.SearchResult, err error) {
 	// 1. Set condition
 	var size int = 10
@@ -167,20 +184,6 @@ func (g *Elastic) GetDocumentsByMapString(index string, indexType string, body m
 	return searchResult, err
 }
 
-// Import Data to elastic
-func (g *Elastic) ImportData(data string, index string) (*elastic.IndexResponse, error) {
-	ctx := context.Background()
-	put2, err := g.client.Index().
-		Index(index).
-		BodyString(data).
-		Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return put2, nil
-}
-
 // Get data elastic
 func (g *Elastic) GetData(field string, keyword string, index string, sort string, limit int) (*elastic.SearchResult, error) {
 	ctx := context.Background()
@@ -200,6 +203,20 @@ func (g *Elastic) GetData(field string, keyword string, index string, sort strin
 	return searchResult, nil
 }
 
+// Import Data to elastic
+func (g *Elastic) ImportData(data string, index string) (*elastic.IndexResponse, error) {
+	ctx := context.Background()
+	put2, err := g.client.Index().
+		Index(index).
+		BodyString(data).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return put2, nil
+}
+
 //  Refresh index
 func (g *Elastic) RefreshIndex(index string) (refreshResult *elastic.RefreshResult, err error) {
 	refreshResult, err = g.client.
@@ -207,4 +224,69 @@ func (g *Elastic) RefreshIndex(index string) (refreshResult *elastic.RefreshResu
 		Do(context.TODO())
 
 	return refreshResult, err
+}
+
+// Update mapping
+/*
+	{
+		"{type}": {
+			"properties": {
+				"name": {
+					"fields": {
+						"raw": {
+							"normalizer": "keyword_normalizer",
+							"type": "keyword"
+						}
+					},
+					"type": "text"
+				},
+				"name_en": {
+					"fields": {
+						"raw": {
+							"normalizer": "keyword_normalizer",
+							"type": "keyword"
+						}
+					},
+					"type": "text"
+				}
+			}
+		}
+	}
+*/
+func (g *Elastic) UpdateMapping(index string, indexType string, bodyString string) (puttingMappingResponse *elastic.PutMappingResponse, err error) {
+	puttingMappingResponse, err = g.client.PutMapping().
+		Index(index).
+		Type(indexType).
+		BodyString(bodyString).
+		Do(context.TODO())
+
+	return puttingMappingResponse, err
+}
+
+//  Update settings
+/*
+	{
+		"settings": {
+			"analysis": {
+				"normalizer": {
+					"keyword_normalizer": {
+						"char_filter": [],
+						"filter": [
+							"asciifolding",
+							"lowercase"
+						],
+						"type": "custom"
+					}
+				}
+			}
+		}
+	}
+*/
+func (g *Elastic) UpdateSettings(index string, bodyString string) (indicesPutSettingsResponse *elastic.IndicesPutSettingsResponse, err error) {
+	indicesPutSettingsResponse, err = g.client.IndexPutSettings().
+		Index(index).
+		BodyString(bodyString).
+		Do(context.TODO())
+
+	return indicesPutSettingsResponse, err
 }

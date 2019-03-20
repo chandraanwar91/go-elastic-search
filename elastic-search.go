@@ -21,7 +21,7 @@ type Elastic struct {
 func New(url string, port string) (*Elastic, error) {
 	c, err := elastic.NewClient(
 		elastic.SetURL(url+":"+port),
-		elastic.SetSniff(false),
+		elastic.SetSniff(true),
 		elastic.SetHealthcheck(false),
 	)
 	if err != nil {
